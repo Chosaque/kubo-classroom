@@ -1,0 +1,7 @@
+/* Lessons have multi-line introductions; the workspace toolbar has its own sizing. */
+.desk-lesson .lesson-heading{height:auto;min-height:0;padding:0;border:0;flex-wrap:wrap}
+.desk-lesson .lesson-heading>div{flex:1 1 380px;min-width:0}
+.desk-lesson .lesson-heading>div>span{display:block}
+.desk-lesson .simulation-tag{flex:0 1 auto;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.desk-lesson .lesson-grid>*{min-width:0}
+@media(max-width:600px){.desk-lesson .lesson-heading{margin-bottom:24px}.desk-lesson .lesson-heading h1{line-height:1.2}.desk-lesson .simulation-tag{margin-top:14px}}

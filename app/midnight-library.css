@@ -1,0 +1,15 @@
+/* Midnight Library: navy surfaces, periwinkle detail, brass actions. */
+:root,:root[data-theme]{color-scheme:dark;--background:#111524;--foreground:#edf1ff;--primary:#eac46c;--primary-foreground:#211b10;--accent:#273150;--border:#435373;--pastel-bg:#111524;--pastel-panel:#1b2134;--pastel-card:#273150;--pastel-edge:#435373;--pastel-shadow:#090d18;--pastel-ink:#edf1ff;--pastel-muted:#adb9d8;--pastel-accent:#eac46c;--pastel-scene:#222c48}
+body{background:#111524;color:#edf1ff}
+.welcome-stage{background-image:linear-gradient(#111524c9,#111524e8),url('/welcome-office.jpg');background-blend-mode:normal}
+button,input,textarea,select{color:inherit}
+input,textarea,select{background-color:#1b2134;border-color:#435373}
+.welcome-sign{background:linear-gradient(145deg,#273150,#1b2134);border-color:#50648e;box-shadow:0 10px 0 #111524,0 24px 45px #0005}
+.welcome-sign h1{color:#eac46c;text-shadow:none}
+.welcome-continue,.story-next,.intro-speech button,.chapter-tabs a[aria-current=page]{background:#eac46c;color:#211b10;border-color:#eac46c;box-shadow:0 3px 0 #8e7135}
+.story-previous{background:#273150;color:#edf1ff;box-shadow:0 3px 0 #111524}
+.story-record button{background:#304e9b;color:#edf1ff;border-color:#7699ff}
+.story-question span{color:#adb9d8}
+.story-question h2{color:#edf1ff}
+:is(button,a,input,textarea,select):focus-visible{outline:3px solid #7699ff!important;outline-offset:3px}
+::selection{background:#7699ff;color:#111524}

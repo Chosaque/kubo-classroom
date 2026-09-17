@@ -1,0 +1,6 @@
+@font-face{font-family:'IBM Plex Sans Thai Looped';src:url('/fonts/IBMPlexSansThaiLooped/IBMPlexSansThaiLooped-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:'IBM Plex Sans Thai Looped';src:url('/fonts/IBMPlexSansThaiLooped/IBMPlexSansThaiLooped-Medium.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
+@font-face{font-family:'IBM Plex Sans Thai Looped';src:url('/fonts/IBMPlexSansThaiLooped/IBMPlexSansThaiLooped-SemiBold.woff2') format('woff2');font-style:normal;font-weight:600;font-display:swap}
+@font-face{font-family:'IBM Plex Sans Thai Looped';src:url('/fonts/IBMPlexSansThaiLooped/IBMPlexSansThaiLooped-Bold.woff2') format('woff2');font-style:normal;font-weight:700 900;font-display:swap}
+html:lang(th) body,html:lang(th) button,html:lang(th) input,html:lang(th) select,html:lang(th) textarea,html:lang(th) .desk-lesson h1,html:lang(th) .desk-lesson h2,html:lang(th) .welcome-sign h1,textarea[lang=th]{font-family:'IBM Plex Sans Thai Looped',Tahoma,sans-serif}
+html:lang(th) .desk-lesson{line-height:1.75}html:lang(th) .lesson-card{line-height:1.7}html:lang(th) .chapter-tabs a{letter-spacing:0}
