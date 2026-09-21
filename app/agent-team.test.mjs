@@ -39,9 +39,11 @@ test('real helper rigs move independently and recover their work loop after idle
  try{
   team.setAgents(helpers,true);await new Promise(resolve=>setImmediate(resolve));
   team.update(.05,camera);const before=bones();
-  for(let i=0;i<12;i++)team.update(.05,camera);
+  assert.ok(team.getState().every(a=>a.movement==='walking'&&a.animation==='Walk'));
+  for(let i=0;i<400;i++)team.update(.05,camera);
   assert.ok(bones().some((n,i)=>Math.abs(n-before[i])>.001),'real joint transforms must change');
   assert.deepEqual(team.getState().map(a=>a.animation),['CheckData','ReadFile','Thinking']);
+  assert.ok(team.getState().every(a=>a.movement==='working'&&Math.hypot(a.position[0]-a.target[0],a.position[1]-a.target[1])<.01));
   const time=team.getState()[0].animationTime;team.setAgents(helpers,true);team.update(.05,camera);
   assert.notEqual(team.getState()[0].animationTime,time,'feed refresh must not freeze the mixer');
   team.setAgents(helpers.map(a=>({...a,stale:true})),true);
