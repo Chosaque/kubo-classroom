@@ -1,0 +1,23 @@
+KUBO'S CLASSROOM - WINDOWS
+
+1. Right-click the downloaded ZIP and choose Extract All.
+2. Open the extracted folder and double-click Start Kubo.
+3. Use Codex or Claude Code normally. Open Live Workshop to see local activity.
+
+No account linking, admin access, Node installation, or terminal commands required.
+The classroom and live connection run together in your normal browser.
+Next time, open Start Kubo again. Keep the entire extracted folder.
+
+Your prompts, replies and tool output are not sent to the website.
+The helper only listens on your PC (127.0.0.1), not your local network.
+It does not start Codex or Claude, install a startup service, or change your firewall.
+The helper stays running until you sign out or restart Windows. Disconnect in
+the workshop to stop showing activity. To stop the helper immediately, use
+Task Manager to end this package's Node.js process (check its executable path).
+
+Windows may warn about an unsigned downloaded launcher. Only run a package
+you trust; do not disable Windows security. Managed work PCs may require IT approval.
+This package is for Windows x64 (Intel/AMD). Windows ARM compatibility is not tested.
+
+For updates, download a fresh package from https://kubo-classroom.vercel.app/live/
+after signing out/restarting to close the previous helper. Extract into a new folder.

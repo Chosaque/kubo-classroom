@@ -1,10 +1,31 @@
 import {createWorkspace} from '../app/interactive-runtime.js';
 import {STATIONS} from '../app/navigation.mjs';
+import {sessions} from './sessions.mjs';
 const $=id=>document.getElementById(id),th=['โต๊ะข้อมูล','กติกา','ทักษะ','คู่มือทักษะ','ตรวจงาน','ขออนุญาต','รับข้อมูล','วางแผน'];
-let language=localStorage.getItem('kubo-workshop-language')||'th',runtime,feed=null,selected='',connected=false,timer=null,busy=false,generation=0;
-let connectionWindow=null,lastWindowPacket=0;
-function acceptFeed(data){if(data.version!==1||!Array.isArray(data.tasks))return;feed=data;connected=true;$('error').textContent='';const tasks=data.tasks.filter(t=>!t.isAgent);if(!tasks.some(t=>t.id===selected))selected=tasks.find(t=>t.id===data.primaryThreadId)?.id||tasks[0]?.id||'';$('tasks').replaceChildren(...tasks.map(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=(t.provider||'Codex')+' · '+t.title;return o;}));$('tasks').value=selected;render();}
-addEventListener('message',e=>{if(e.origin!=='http://127.0.0.1:4318'||e.source!==connectionWindow||!timer||e.data?.type!=='kubo-live-feed')return;lastWindowPacket=Date.now();acceptFeed(e.data.feed);});
+const localMode=['127.0.0.1','localhost'].includes(location.hostname)&&location.port==='4318';
+let language=localStorage.getItem('kubo-workshop-language')||'th',runtime,feed=null,selected='',connected=false,timer=null;
+let stream=null,lastPacket=0;
+const searchButton=document.createElement('button'),searchInput=document.createElement('input'),searchStatus=document.createElement('p');
+searchButton.type='button';searchButton.dataset.en='Search sessions';searchButton.dataset.th='ค้นหาเซสชัน';searchButton.setAttribute('aria-expanded','false');searchButton.setAttribute('aria-controls','session-search');
+searchInput.id='session-search';searchInput.type='search';searchInput.hidden=true;searchInput.autocomplete='off';searchInput.style.cssText='width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid #ffffff35;background:#10152b;color:#f6eee0;font:inherit';
+searchStatus.className='note';searchStatus.setAttribute('role','status');
+$('tasks').before(searchButton,searchInput,searchStatus);
+searchButton.onclick=()=>{searchInput.hidden=!searchInput.hidden;searchButton.setAttribute('aria-expanded',String(!searchInput.hidden));if(!searchInput.hidden)searchInput.focus();else{searchInput.value='';render();}};
+searchInput.oninput=()=>render();
+searchInput.onkeydown=e=>{if(e.key==='Escape'){searchInput.value='';render();}};
+function renderSessions(){
+ const tasks=sessions(feed?.tasks,searchInput.value);
+ searchInput.placeholder=L('Search by name or assistant…','ค้นหาชื่อหรือผู้ช่วย…');searchInput.setAttribute('aria-label',L('Search sessions','ค้นหาเซสชัน'));
+ searchButton.disabled=!connected;
+ searchStatus.textContent=connected?`${tasks.length} ${L('sessions · newest activity first','เซสชัน · กิจกรรมล่าสุดก่อน')}`:'';
+ const options=tasks.map(t=>{const o=document.createElement('option');o.value=t.id;const time=Date.parse(t.lastEventAt);o.textContent=`${t.provider||'Codex'} · ${t.title} · ${Number.isFinite(time)?new Date(time).toLocaleString(language==='th'?'th-TH':'en-GB',{dateStyle:'short',timeStyle:'short'}):L('Date unavailable','ไม่มีวันที่')}`;return o;});
+ if(!tasks.some(t=>t.id===selected)){const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=tasks.length?L('Select a matching session','เลือกเซสชันที่ค้นพบ'):L('No matching sessions','ไม่พบเซสชัน');options.unshift(placeholder);}
+ const signature=JSON.stringify(options.map(o=>[o.value,o.textContent]));
+ if($('tasks').dataset.signature!==signature||$('tasks').options.length!==options.length){$('tasks').replaceChildren(...options);$('tasks').dataset.signature=signature;}
+ $('tasks').value=tasks.some(t=>t.id===selected)?selected:'';
+ $('tasks').disabled=!connected||!tasks.length;
+}
+function acceptFeed(data){if(data.version!==1||!Array.isArray(data.tasks))return;feed=data;connected=true;$('error').textContent='';const tasks=sessions(data.tasks);if(!tasks.some(t=>t.id===selected))selected=tasks.find(t=>t.id===data.primaryThreadId)?.id||tasks[0]?.id||'';render();}
 const L=(en,thai)=>language==='th'?thai:en;
 function localize(){document.documentElement.lang=language;document.querySelectorAll('[data-en]').forEach(e=>e.textContent=e.dataset[language]);$('language').textContent=language==='th'?'EN':'ไทย';document.querySelectorAll('#stations button').forEach((b,i)=>b.lastChild.textContent=language==='th'?th[i]:STATIONS[i].name);render();}
 $('language').onclick=()=>{language=language==='th'?'en':'th';localStorage.setItem('kubo-workshop-language',language);localize();};
@@ -17,14 +38,25 @@ function render(){
  document.querySelectorAll('#stations button').forEach(b=>b.disabled=!runtime||locked);
  runtime?.setLiveTask(connected&&task?{...task,stale}:null,connected,connected&&!!task);
  runtime?.setAgents(connected?feed.tasks.filter(t=>t.parentId===selected):[],connected);
- $('tasks').disabled=!connected||!feed?.tasks.length;
+ renderSessions();
  $('history').replaceChildren();if(connected&&task)for(const e of (task.events||[]).slice(-5).reverse()){const li=document.createElement('li');li.textContent=`${new Date(e.time).toLocaleTimeString(language==='th'?'th-TH':'en-GB')} · ${e.message}`;$('history').append(li);}
 }
-async function poll(epoch){if(busy)return;busy=true;try{const response=await fetch('http://127.0.0.1:4318/api/live',{signal:AbortSignal.timeout(5000),cache:'no-store'});if(!response.ok)throw Error('bridge');const data=await response.json();if(epoch!==generation)return;if(data.version!==1||!Array.isArray(data.tasks))throw Error('format');feed=data;connected=true;$('error').textContent='';const tasks=data.tasks.filter(t=>!t.isAgent);if(!tasks.some(t=>t.id===selected))selected=tasks.find(t=>t.id===data.primaryThreadId)?.id||tasks[0]?.id||'';$('tasks').replaceChildren(...tasks.map(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${t.provider||'Codex'} · ${t.title}`;return o;}));$('tasks').value=selected;}catch{if(epoch!==generation)return;connected=false;feed=null;$('error').textContent=L('Bridge unavailable. Run npm run live:bridge, then allow local network access in your browser. Retrying…','ยังเชื่อมต่อไม่ได้ รัน npm run live:bridge และอนุญาตเครือข่ายภายในในเบราว์เซอร์ กำลังลองใหม่…');}finally{busy=false;if(epoch===generation)render();}}
+function unavailable(){connected=false;feed=null;$('error').textContent=L('Reconnecting… If this continues, open Start Kubo again.','กำลังเชื่อมต่อใหม่… หากยังไม่สำเร็จ ให้เปิด Start Kubo อีกครั้ง');render();}
+function connectLocal(){
+ if(stream)return;
+ $('disconnect').hidden=false;$('connect').hidden=true;
+ stream=new EventSource('/api/events');lastPacket=Date.now();
+ stream.onmessage=e=>{try{const data=JSON.parse(e.data);if(data.version!==1||!Array.isArray(data.tasks))return;lastPacket=Date.now();acceptFeed(data);}catch{unavailable();}};
+ stream.onerror=unavailable;
+ timer=setInterval(()=>{if(Date.now()-lastPacket>10000)unavailable();},2000);
+}
 $('tasks').onchange=()=>{selected=$('tasks').value;render();};
-$('connect').onclick=()=>{if(timer)return;const epoch=++generation;$('disconnect').hidden=false;$('connect').hidden=true;connectionWindow=window.open('http://127.0.0.1:4318/connect?origin='+encodeURIComponent(location.origin),'_blank');lastWindowPacket=Date.now();timer=setInterval(()=>{if(Date.now()-lastWindowPacket<12000)return;if(connectionWindow){connected=false;feed=null;$('error').textContent=L('Connection window closed or paused. Disconnect and reconnect to resume.','หน้าต่างเชื่อมต่อถูกปิดหรือหยุด กดยกเลิกแล้วเชื่อมต่อใหม่');render();}else poll(epoch);},2000);};
-$('disconnect').onclick=()=>{generation++;clearInterval(timer);timer=null;connectionWindow?.close();connectionWindow=null;connected=false;feed=null;$('tasks').replaceChildren();$('error').textContent='';$('disconnect').hidden=true;$('connect').hidden=false;render();};
+$('connect').onclick=()=>{if(localMode)connectLocal();else{$('setup').hidden=!$('setup').hidden;$('connect').setAttribute('aria-expanded',String(!$('setup').hidden));}};
+$('disconnect').onclick=()=>{clearInterval(timer);timer=null;stream?.close();stream=null;connected=false;feed=null;$('error').textContent='';$('disconnect').hidden=true;$('connect').hidden=false;render();};
 $('reset').onclick=()=>runtime?.resetView();
+if(localMode){$('connect').dataset.en='Resume live activity';$('connect').dataset.th='เชื่อมต่ออีกครั้ง';$('setup').hidden=true;}
 localize();
+if(localMode)connectLocal();
 try{runtime=await createWorkspace($('canvas'),()=>{},()=>{},()=>{}, {visualReporting:false});runtime.setTheme('midnight');$('loading').hidden=true;render();}catch{$('loading').textContent=L('The 3D room could not load. Refresh with WebGL enabled.','โหลดห้อง 3D ไม่สำเร็จ กรุณารีเฟรชและเปิด WebGL');}
-addEventListener('pagehide',()=>{generation++;clearInterval(timer);runtime?.dispose();});
+addEventListener('pagehide',()=>{clearInterval(timer);stream?.close();stream=null;runtime?.dispose();});
+addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
