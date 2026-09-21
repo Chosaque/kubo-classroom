@@ -143,7 +143,7 @@ export async function createWorkspace(element,onState,onEvent,onManual=()=>{},op
     const station=STATIONS.find(s=>s.id===movement.stationId);marker.visible=!!station;if(station)marker.position.set(station.target[0],.155,station.target[1]);
    }
    if(performance.now()-lastStateTime>180){onState(snapshot());lastStateTime=performance.now();}
-   if(following&&feedConnected&&currentTask?.progress&&performance.now()-lastVisualTime>750){lastVisualTime=performance.now();fetch('/api/visual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId:roomId,stepId:currentTask.progress.id,stationId:movement.stationId,state:oneShot?'turning':movement.state})}).catch(()=>{});}
+   if(options.visualReporting!==false&&following&&feedConnected&&currentTask?.progress&&performance.now()-lastVisualTime>750){lastVisualTime=performance.now();fetch('/api/visual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({threadId:roomId,stepId:currentTask.progress.id,stationId:movement.stationId,state:oneShot?'turning':movement.state})}).catch(()=>{});}
    controls.update();scene.updateMatrixWorld(true);
    const anchor=headBone?headBone.getWorldPosition(new T.Vector3()).add(new T.Vector3(0,.95,0)):actor.position.clone().add(new T.Vector3(0,2.1,0));anchor.project(camera);
    const w=element.clientWidth,h=element.clientHeight,x=(anchor.x*.5+.5)*w,y=(-anchor.y*.5+.5)*h;

@@ -6,7 +6,7 @@ A Thai/English learning website for explaining AI agents and coordinated sub-age
 
 [Open Kubo's Classroom](https://kubo-classroom.vercel.app/)
 
-This is the publicly hosted demo, not the local development preview. The latest local Guesthouse animation and camera changes have not been published. The demo and this repository may represent different versions; see Version status below.
+The published classroom includes the Cosmic Guesthouse and [Live Workshop](https://kubo-classroom.vercel.app/live/), with the original eight-station room.
 
 ## Project direction
 
@@ -17,11 +17,11 @@ This is the publicly hosted demo, not the local development preview. The latest 
 
 ## Version status
 
-As of September 21, 2026, this repository contains the classroom application and office demonstration. A newer Cosmic Guesthouse prototype, including lesson-linked character animations and camera zooms, is being developed separately and has **not yet been synced into this repository**. Do not assume this checkout matches that local preview or the deployed website.
+`website/` now contains the Cosmic Guesthouse publication source. `live/` contains the integrated workshop UI and uses the original room and animations from `app/`. `npm run build:website` produces the complete static Vercel site, preserving the Guesthouse at `/` and `/guesthouse/` and adding `/live/`. The older presentation source remains in `app/`.
 
 ## Run locally
 
-Requirements: Git, Node.js **22.13.0 or newer**, npm, and access to this private repository.
+Requirements: Git, Node.js **22.13.0 or newer**, and npm. This repository is public.
 
 ```sh
 git clone https://github.com/Chosaque/kubo-classroom.git
@@ -77,3 +77,31 @@ Do not commit passwords, API keys, `.env` secrets, private notes, or machine-spe
 ## Deployment
 
 A GitHub commit is not proof that the live website has updated. Confirm the deployment destination and workflow with the project owner before publishing, and verify the live result afterward.
+
+## Live Workshop
+
+Open the classroom and select **Live Workshop · 8 stations**, or open `/live/` directly. Thai and English are supported. The room uses the classroom's midnight blue and gold theme. Drag to orbit, scroll to zoom, and explore each station while disconnected.
+
+For real activity on your own computer:
+
+```sh
+npm ci
+npm run live:bridge
+```
+
+Keep that terminal running, open https://kubo-classroom.vercel.app/live/ and select **Connect this computer**. Allow local network access if the browser requests it. The bridge binds only to `127.0.0.1:4318`. Supported browser origins are the production classroom and the documented localhost previews. Restart the bridge after changing its code.
+
+The bridge reads local Codex session events and Claude Code project-session events. If the original dashboard is already running on port 4317, its Codex feed and declared work steps are reused. Otherwise the bridge reads Codex records directly. It never starts Claude or Codex. Cloud tasks with no local session record cannot appear.
+
+Prompts, replies, reasoning contents, command arguments, tool output and file contents are not served. Codex task titles and fixed activity labels are displayed locally in your browser. Activity is **not uploaded to Vercel or shared with visitors**. Another computer needs its own bridge. Disconnection clears the feed and unlocks exploration; old activity is marked stale, never animated as fresh work.
+
+Automatic events identify broad actions. For accurate visits to all eight stations, the agent should declare its actual current step, using its real environment session ID:
+
+```sh
+node bridge/report.mjs check "Checking the classroom"
+node bridge/report.mjs done "The checked classroom is ready"
+```
+
+Stages: `context`, `rules`, `skill`, `references`, `check`, `approval`, `intake`, `plan`, `thinking`, `done`, `clear`. `CODEX_THREAD_ID` or `CLAUDE_SESSION_ID` must identify the running session. Declarations do not execute work, grant permissions or reveal reasoning. Report only real work, and refresh steps that run longer than three minutes.
+
+Verification: `node --test bridge/monitor.test.mjs`. Build: `npm run build:website`. For a localhost preview serve `website/` on port 4350. The production build is defined in `vercel.json`.

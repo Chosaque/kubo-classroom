@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="th">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/guesthouse/"><title>Cosmic Guesthouse · Kubo’s Classroom</title><meta name="description" content="Learn agentic AI with the original Kubo in the Cosmic Guesthouse."><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./mission.css"><link rel="stylesheet" href="./course.css"><script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script></head>
+<body>
+<header><a href="/" id="back">← ห้องเรียน</a><span class="brand">KUBO’S <b>COSMIC GUESTHOUSE</b></span><button id="language" aria-label="Switch to English">EN</button></header>
+<nav class="mode-switch" aria-label="Activities"><button id="mission-mode" aria-pressed="true">เรียนไปกับ Kubo · 7 บท</button><button id="practice-mode" aria-pressed="false">ลองจัดห้อง</button></nav>
+<main>
+ <section class="lobby" aria-label="Guesthouse lobby">
+  <div class="scene-heading"><div><h1 id="heading">เข้ากะกับ Kubo</h1><p id="instruction">เรียนรู้ไปกับ Kubo</p></div><span id="progress"></span></div>
+  <div id="stage"><canvas id="scene" aria-label="3D lobby with original Kubo, Luma, Pip and Nova"></canvas><p id="loading" role="status">กำลังเตรียมล็อบบี้…</p><div id="labels" aria-label="Select a guest"></div></div>
+  <nav id="guest-list" aria-label="Guests"></nav>
+  <div class="scene-footer"><span id="render-status" role="status">กำลังโหลดโมเดล 3D</span><button id="reset">เริ่มใหม่</button></div>
+ </section>
+ <aside class="desk"><div id="mission"></div><div id="conversation" aria-live="polite"></div><div id="rooms"></div><div id="feedback" role="status" aria-live="polite"></div><p class="simulation" id="simulation">เกมจำลองสำหรับห้องเรียน · ไม่ได้เรียกใช้ AI จริง</p></aside>
+</main>
+<noscript>This classroom requires JavaScript.</noscript><script type="module" src="./game.js"></script>
+</body></html>

@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {claudeEvent} from './claude-monitor.mjs';
+import {publicEvent} from './live-monitor.mjs';
+const timestamp=new Date().toISOString();
+test('Claude events never copy messages or tool inputs',()=>{const event=claudeEvent({type:'assistant',timestamp,message:{content:[{type:'text',text:'PRIVATE'},{type:'tool_use',name:'Read',input:{file_path:'PRIVATE'}}]}});assert.equal(event.stationId,'station-1');assert.ok(!JSON.stringify(event).includes('PRIVATE'));});
+test('Claude completion and input waits have distinct states',()=>{assert.equal(claudeEvent({type:'assistant',timestamp,message:{stop_reason:'end_turn'}}).state,'completed');assert.equal(claudeEvent({type:'assistant',timestamp,message:{content:[{type:'tool_use',name:'AskUserQuestion'}]}}).state,'waiting');});
+test('Codex tool input and output content are excluded',()=>{const event=publicEvent({type:'response_item',timestamp,payload:{type:'function_call',name:'exec_command',arguments:'PRIVATE'}});assert.ok(!JSON.stringify(event).includes('PRIVATE'));assert.equal(publicEvent({type:'response_item',timestamp,payload:{type:'message',content:'PRIVATE'}}),null);});
+test('Malformed timestamps cannot impersonate fresh activity',()=>{assert.equal(claudeEvent({type:'user',timestamp:'bad'}),null);assert.equal(publicEvent({type:'event_msg',timestamp:'bad',payload:{type:'task_started'}}),null);});
