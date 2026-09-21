@@ -1,6 +1,6 @@
 import {createWorkspace} from '../app/interactive-runtime.js';
 import {STATIONS} from '../app/navigation.mjs';
-import {sessions} from './sessions.mjs';
+import {sessions,sessionTime} from './sessions.mjs';
 const $=id=>document.getElementById(id),th=['โต๊ะข้อมูล','กติกา','ทักษะ','คู่มือทักษะ','ตรวจงาน','ขออนุญาต','รับข้อมูล','วางแผน'];
 const localMode=['127.0.0.1','localhost'].includes(location.hostname)&&location.port==='4318';
 let language=localStorage.getItem('kubo-workshop-language')||'th',runtime,feed=null,selected='',connected=false,timer=null;
@@ -18,7 +18,7 @@ function renderSessions(){
  searchInput.placeholder=L('Search by name or assistant…','ค้นหาชื่อหรือผู้ช่วย…');searchInput.setAttribute('aria-label',L('Search sessions','ค้นหาเซสชัน'));
  searchButton.disabled=!connected;
  searchStatus.textContent=connected?`${tasks.length} ${L('sessions · newest activity first','เซสชัน · กิจกรรมล่าสุดก่อน')}`:'';
- const options=tasks.map(t=>{const o=document.createElement('option');o.value=t.id;const time=Date.parse(t.lastEventAt);o.textContent=`${t.provider||'Codex'} · ${t.title} · ${Number.isFinite(time)?new Date(time).toLocaleString(language==='th'?'th-TH':'en-GB',{dateStyle:'short',timeStyle:'short'}):L('Date unavailable','ไม่มีวันที่')}`;return o;});
+ const options=tasks.map(t=>{const o=document.createElement('option');o.value=t.id;const time=sessionTime(t);o.textContent=`${t.provider||'Codex'} · ${t.title} · ${time?new Date(time).toLocaleString(language==='th'?'th-TH':'en-GB',{dateStyle:'short',timeStyle:'short'}):L('Date unavailable','ไม่มีวันที่')}`;return o;});
  if(!tasks.some(t=>t.id===selected)){const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=tasks.length?L('Select a matching session','เลือกเซสชันที่ค้นพบ'):L('No matching sessions','ไม่พบเซสชัน');options.unshift(placeholder);}
  const signature=JSON.stringify(options.map(o=>[o.value,o.textContent]));
  if($('tasks').dataset.signature!==signature||$('tasks').options.length!==options.length){$('tasks').replaceChildren(...options);$('tasks').dataset.signature=signature;}

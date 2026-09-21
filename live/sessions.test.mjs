@@ -17,3 +17,7 @@ test('search matches title, assistant and ID without case sensitivity',()=>{
  assert.deepEqual(sessions(tasks,'unknown').map(t=>t.id),['unknown']);
  assert.deepEqual(sessions(tasks,'nothing'),[]);
 });
+test('new events take precedence over an older declared step timestamp',()=>{
+ const active={...tasks[0],events:[{time:'2026-09-22T10:00:00Z'}]};
+ assert.equal(sessions([tasks[2],active])[0].id,'old');
+});
