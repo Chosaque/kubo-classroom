@@ -36,7 +36,7 @@ export async function createWorkspace(element,onState,onEvent,onManual=()=>{},op
  let outfit='original';const garments=[],fabric=[];
  const setOutfit=value=>{if(!['original','overalls','pinafore','hijab'].includes(value))return;outfit=value;for(const o of garments)o.visible=o.userData.outfit===value||(value==='hijab'&&o.userData.outfit==='pinafore');for(const f of fabric){f.object.material.color.copy(f.color);if(value==='overalls'&&f.name.includes('trouser'))f.object.material.color.set('#7fac96');if(['pinafore','hijab'].includes(value)&&f.name.includes('trouser'))f.object.material.color.set('#ded0cb');f.object.visible=!(value!=='original'&&/necktie|tie knot/.test(f.name));}};
  const locked=()=>['active','waiting'].includes(currentTask?.runtimeState||currentTask?.state);
- const snapshot=()=>({...movement.snapshot(),animation:activeClip,animationLabel:CLIP_LABELS[activeClip]||activeClip});
+ const snapshot=()=>({...movement.snapshot(),animation:activeClip,animationLabel:CLIP_LABELS[activeClip]||activeClip,agents:team.getState()});
  const react=(clip,after=null)=>{if(!actions[clip])return;actions[clip].stop();if(activeClip===clip)activeClip=null;oneShot={clip,remaining:actions[clip].getClip().duration,after};};
  const depart=fn=>{oneShot=null;fn();};
  const makeMovement=()=>new Movement((type,data)=>{

@@ -1,0 +1,7 @@
+node_modules
+.git
+work
+outputs
+.env*
+*.log
+website/downloads

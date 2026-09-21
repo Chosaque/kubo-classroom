@@ -1,6 +1,7 @@
 import {createWorkspace} from '../app/interactive-runtime.js';
 import {STATIONS} from '../app/navigation.mjs';
 import {sessions,sessionTime} from './sessions.mjs';
+import {teamFor} from '../app/agent-team-state.mjs';
 const $=id=>document.getElementById(id),th=['โต๊ะข้อมูล','กติกา','ทักษะ','คู่มือทักษะ','ตรวจงาน','ขออนุญาต','รับข้อมูล','วางแผน'];
 const localMode=['127.0.0.1','localhost'].includes(location.hostname)&&location.port==='4318';
 let language=localStorage.getItem('kubo-workshop-language')||'th',runtime,feed=null,selected='',connected=false,timer=null;
@@ -37,7 +38,7 @@ function render(){
  $('detail').textContent=connected?(task?`${task.provider||'Codex'} · ${task.title} · ${L('Reported status','สถานะที่รายงาน')}`:L('No local sessions found. Start a task in Codex or Claude Code.','ยังไม่พบงาน เริ่มงานใน Codex หรือ Claude Code')):L('Connect to follow real work on this computer.','เชื่อมต่อเพื่อดูงานจริงบนคอมพิวเตอร์นี้');
  document.querySelectorAll('#stations button').forEach(b=>b.disabled=!runtime||locked);
  runtime?.setLiveTask(connected&&task?{...task,stale}:null,connected,connected&&!!task);
- runtime?.setAgents(connected?feed.tasks.filter(t=>t.parentId===selected):[],connected);
+ runtime?.setAgents(connected?teamFor(feed.tasks,selected):[],connected);
  renderSessions();
  $('history').replaceChildren();if(connected&&task)for(const e of (task.events||[]).slice(-5).reverse()){const li=document.createElement('li');li.textContent=`${new Date(e.time).toLocaleTimeString(language==='th'?'th-TH':'en-GB')} · ${e.message}`;$('history').append(li);}
 }

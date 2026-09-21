@@ -1,3 +1,4 @@
+import {stationClip} from './animation-state.mjs';
 export const AGENT_COLORS=['#70a9d6','#a491cf','#70b59d','#dc9c85'];
 export function teamFor(tasks,parentId){
  if(!parentId)return [];
@@ -8,11 +9,23 @@ export function agentStatus(agent,connected,now=Date.now()){
  if(!connected)return 'Updates disconnected';
  if(agent.state==='completed')return 'Finished';
  if(agent.state==='interrupted')return 'Interrupted';
- if(agent.stale||agent.readable===false||!agent.lastEventAt||now-Date.parse(agent.lastEventAt)>20000)return 'No recent update';
+ const updated=Date.parse(agent.lastEventAt);
+ if(agent.stale||agent.readable===false||!Number.isFinite(updated)||(!agent.progress&&now-updated>20000))return 'No recent update';
  if(agent.state==='waiting')return 'Needs your input';
+ if(agent.state==='active'&&agent.thinking)return 'Thinking';
  return agent.state==='active'?'Working':'Ready';
 }
-export function agentClip(status,stationId){return status==='Working'?(stationId==='station-5'?'CheckData':'ReadFile'):'Idle';}
+export function agentClip(status,stationId,seconds=0){
+ if(status==='Thinking')return 'Thinking';
+ if(status==='Needs your input')return 'WaitApproval';
+ // Helpers stand in their own slots; the main actor's seated typing needs a chair.
+ if(status==='Working')return !stationId||stationId==='station-1'?'Work':stationClip(stationId,seconds);
+ return 'Idle';
+}
+export function visibleAgents(agents){
+ const priority=a=>['active','waiting'].includes(a.runtimeState||a.state)?0:1;
+ return [...agents].sort((a,b)=>priority(a)-priority(b)||a.id.localeCompare(b.id)).slice(0,4);
+}
 export const DEMO_AGENTS=[
  {id:'demo-blue',title:'Kubo Blue',state:'active',stationId:'station-4',activity:'Reading reference files'},
  {id:'demo-lilac',title:'Kubo Lilac',state:'active',stationId:'station-5',activity:'Checking the work'},
