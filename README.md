@@ -2,6 +2,12 @@
 
 A Thai/English learning website for explaining AI agents and coordinated sub-agents, with Kubo as the central orchestrator and an office demonstration.
 
+## Live demo
+
+[Open Kubo's Classroom](https://kubo-classroom.vercel.app/)
+
+This is the publicly hosted demo, not the local development preview. The latest local Guesthouse animation and camera changes have not been published. The demo and this repository may represent different versions; see Version status below.
+
 ## Project direction
 
 - Explain ideas visually, with short text suitable for beginners.
