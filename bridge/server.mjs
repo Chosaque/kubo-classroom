@@ -2,7 +2,9 @@ import http from 'node:http';
 import {LiveMonitor} from './live-monitor.mjs';
 import {claudeTasks} from './claude-monitor.mjs';
 import {ProgressStore} from './progress-store.mjs';
+import {connectionPage} from './connection-page.mjs';
 const progress=new ProgressStore();
+const streams=new Set();
 const port=4318,monitor=new LiveMonitor({primaryThreadId:process.env.CODEX_THREAD_ID||null});
 const origins=new Set(['https://kubo-classroom.vercel.app','http://127.0.0.1:4349','http://localhost:4349','http://127.0.0.1:4350']);
 let snapshot={version:1,tasks:[],connection:'unavailable'},busy=false;
@@ -11,6 +13,8 @@ const server=http.createServer((req,res)=>{
  const origin=req.headers.origin;if(!['127.0.0.1:4318','localhost:4318'].includes(req.headers.host)||(origin&&!origins.has(origin))){res.writeHead(403);res.end('Origin not allowed');return;}
  if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Private-Network','true');}
  res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
+ if(req.method==='GET'&&new URL(req.url,'http://127.0.0.1:4318').pathname==='/connect'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(connectionPage);return;}
+ if(req.method==='GET'&&req.url==='/api/events'){res.setHeader('Content-Type','text/event-stream');res.setHeader('Connection','keep-alive');res.write('data: '+JSON.stringify(progress.merge(snapshot))+'\n\n');streams.add(res);req.on('close',()=>streams.delete(res));return;}
  if(req.method==='OPTIONS'){res.setHeader('Access-Control-Allow-Methods','GET, OPTIONS');res.writeHead(204);res.end();return;}
  if(req.method==='POST'&&req.url==='/api/progress'&&!origin&&req.headers['sec-fetch-site']!=='cross-site'){
   if(req.headers['content-type']!=='application/json'){res.writeHead(415);res.end();return;}
@@ -20,6 +24,7 @@ const server=http.createServer((req,res)=>{
  res.setHeader('Content-Type','application/json');res.end(JSON.stringify(progress.merge(snapshot)));
 });
 await refresh();const timer=setInterval(refresh,2000);
+const streamTimer=setInterval(()=>{for(const res of streams){if(res.writableLength>1048576){res.destroy();streams.delete(res);}else res.write('data: '+JSON.stringify(progress.merge(snapshot))+'\n\n');}},2000);
 server.on('error',e=>{clearInterval(timer);console.error(e.message);process.exitCode=1;});
 server.listen(port,'127.0.0.1',()=>console.log('Kubo bridge ready. Open https://kubo-classroom.vercel.app/live/ and connect this computer.'));
-for(const s of ['SIGINT','SIGTERM'])process.on(s,()=>{clearInterval(timer);server.close();});
+for(const s of ['SIGINT','SIGTERM'])process.on(s,()=>{clearInterval(timer);clearInterval(streamTimer);for(const res of streams)res.end();server.close();});

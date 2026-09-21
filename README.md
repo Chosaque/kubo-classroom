@@ -89,7 +89,7 @@ npm ci
 npm run live:bridge
 ```
 
-Keep that terminal running, open https://kubo-classroom.vercel.app/live/ and select **Connect this computer**. Allow local network access if the browser requests it. The bridge binds only to `127.0.0.1:4318`. Supported browser origins are the production classroom and the documented localhost previews. Restart the bridge after changing its code.
+Keep that terminal running, open https://kubo-classroom.vercel.app/live/ and select **Connect this computer**. Keep the small local connection window open; it sends activity only to the classroom window that opened it. If popups are unavailable the page attempts a direct local connection, which may require browser local-network permission. The bridge binds only to `127.0.0.1:4318`. Supported browser origins are the production classroom and the documented localhost previews. Restart the bridge after changing its code.
 
 The bridge reads local Codex session events and Claude Code project-session events. If the original dashboard is already running on port 4317, its Codex feed and declared work steps are reused. Otherwise the bridge reads Codex records directly. It never starts Claude or Codex. Cloud tasks with no local session record cannot appear.
 
