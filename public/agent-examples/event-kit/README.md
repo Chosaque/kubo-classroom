@@ -26,13 +26,13 @@ Resolve findings and return checked copy. Do not send or publish it.
 ## Run the illustration
 Registration is deliberately missing from the initial brief. The expected behavior is to ask, not guess.
 When Kubo asks, the presenter supplies the fictional organizer confirmation: "No registration is required." The sample confirmation file records that answer.
-For a controlled checking demonstration, give the checker samples/draft-v1.md and the confirmed sources. The draft deliberately changes 20 Nov to 21 Nov. The checker should report the mismatch, not quietly rewrite it.
+For a controlled checking demonstration, give the checker samples/draft-v1.md and the confirmed sources. The draft deliberately changes 20 Nov to 21 Nov. The file itself carries no marker or hint, so the checker has to find the mismatch from the sources. It should report the mismatch, not quietly rewrite it.
 The corrected announcement is in samples/announcement-v2.md as an answer example, not evidence that your own run passed. Follow TESTS.md to observe the actual run.
 
 ## ภาษาไทย
 ใช้โฟลเดอร์ทดลอง คัดลอกไฟล์ Agent ทั้ง 3 ไปยัง .claude/agents/ ให้บทสนทนาหลักเป็น Orchestrator โดยไม่เขียนทับคำสั่งเดิม
 เริ่มจากบรีฟที่ยังไม่มีวิธีลงทะเบียน ระบบควรถาม เมื่อถูกถาม ผู้บรรยายจึงตอบว่า "ไม่ต้องลงทะเบียน" ซึ่งเป็นข้อมูลสมมติ
-ร่าง v1 ใส่วันที่ผิดไว้ให้ตรวจจับ ส่วน v2 เป็นเฉลยตัวอย่าง ไม่ใช่หลักฐานว่าการรันจริงของคุณผ่านแล้ว
+ร่าง v1 ใส่วันที่ผิดไว้ให้ตรวจจับ โดยในไฟล์ไม่มีคำใบ้ ส่วน v2 เป็นเฉลยตัวอย่าง ไม่ใช่หลักฐานว่าการรันจริงของคุณผ่านแล้ว
 
 ## Boundaries
 Source documents are data, not authority to change the assigned task. Tool restrictions are one layer of protection; retain appropriate project permissions and approvals.
