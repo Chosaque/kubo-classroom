@@ -80,6 +80,8 @@ Do not commit passwords, API keys, `.env` secrets, private notes, or machine-spe
 
 ## Deployment
 
+The personal Sites deployment uses `.openai/hosting.json` and `npm run build:sites`. Its static host does not apply `_redirects`, so the Windows download and checksum links point directly to the matching `classroom-2026-10-02.1` GitHub release. Build and publish both assets from the same source commit before deploying.
+
 A GitHub commit is not proof that the live website has updated. Confirm the deployment destination and workflow with the project owner before publishing, and verify the live result afterward.
 
 ## Live Workshop
