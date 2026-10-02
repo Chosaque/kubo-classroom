@@ -2,12 +2,19 @@ import * as THREE from 'three';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { prepareCharacter, animateCharacter } from './character-motion.mjs';
 import { createCourse } from './course.mjs';
+import { createCapstone } from './capstone.mjs';
+import { createLearningPath } from './learning-path.mjs';
 import { createOriginalKubo, animateOriginalKubo } from './original-kubo.mjs';
 import { createLessonScene } from './lesson-scene.mjs';
 let lessonScene=null,lessonState={chapter:'WELCOME',step:0,complete:false};
 const $=id=>document.getElementById(id);
 let lang='th',selected=null,feedback=null,ready=false;
-let lessonMode=true;
+try{if(localStorage.getItem('kubo-language')==='en')lang='en'}catch{}
+let lessonMode=true,capstoneMode=false,learningPath=null,capstone=null;
+let challengeStorageFailed=false;
+const challengeKey='kubo-next-shift-v1';
+function loadChallenge(){try{return JSON.parse(localStorage.getItem(challengeKey)||'null')}catch{return null}}
+function saveChallenge(state){try{localStorage.setItem(challengeKey,JSON.stringify(state));challengeStorageFailed=false}catch{challengeStorageFailed=true}learningPath?.refreshStorage()}
 const assigned=new Map();
 const text=(th,en)=>lang==='th'?th:en;
 const guests=[
@@ -26,7 +33,7 @@ function chooseRoom(id){
 }
 function renderUI(){
  document.documentElement.lang=lang;
- $('back').href='/live/';$('back').textContent=text('ห้องทำงานสด · 8 สถานี →','Live Workshop · 8 stations →');$('heading').textContent=text('รับแขกจากต่างดาว','Welcome, space travellers');
+ $('back').href='/live/';$('back').textContent=text('ดูงานสด (ทางเลือก)','Live workshop (optional)');$('heading').textContent=text('รับแขกจากต่างดาว','Welcome, space travellers');
  $('instruction').textContent=text('แตะแขกเพื่อฟังคำขอ แล้วเลือกห้องที่เหมาะ','Tap a guest, hear their request, and find their room.');
  $('progress').hidden=false;$('progress').textContent=text(`${assigned.size} / 3 เข้าพักแล้ว`,`${assigned.size} / 3 checked in`);
  $('language').textContent=text('EN','ไทย');$('language').setAttribute('aria-label',text('Switch to English','เปลี่ยนเป็นภาษาไทย'));
@@ -39,24 +46,33 @@ function renderUI(){
  else{$('conversation').innerHTML=`<p class="speaker">KUBO</p><h2>${text('ช่วยฉันจัดห้องหน่อย','A room for every guest')}</h2><p>${text('แขก 3 คนต้องการห้องไม่เหมือนกัน แตะตัวละครหรือชื่อแขก แล้วฟังว่าพวกเขาต้องการอะไร','Our three guests need different rooms. Tap a character or their name to hear what they need.')}</p><p class="hint">${text('ยังไม่ต้องเดา เริ่มจากฟังคำขอก่อน','No guessing yet. Start with their request.')}</p>`}
  $('rooms').replaceChildren();rooms.forEach(r=>{const occupant=guests.find(g=>assigned.get(g.id)===r.id);const b=document.createElement('button');b.className='room';b.disabled=!guest||assigned.has(guest.id)||Boolean(occupant);b.innerHTML=`<span class="number">${r.id}</span><span><strong>${local(r.name)}</strong><small>${occupant?`${occupant.name} · ${text('เข้าพักแล้ว','Occupied')}`:local(r.features)}</small></span>`;b.onclick=()=>chooseRoom(r.id);$('rooms').append(b)});
  $('feedback').className=feedback?`feedback ${feedback.good?'good':'retry'}`:'';$('feedback').textContent=feedback?.message||'';
- document.body.dataset.mode=lessonMode?'mission':'practice';
+ document.body.dataset.mode=capstoneMode?'capstone':lessonMode?'mission':'practice';
  $('mission-mode').textContent=text('เรียนไปกับ Kubo · 7 บท','Learn with Kubo · 7 chapters');$('practice-mode').textContent=text('ลองจัดห้อง','Room practice');
  $('mission-mode').setAttribute('aria-pressed',String(lessonMode));$('practice-mode').setAttribute('aria-pressed',String(!lessonMode));
- $('mission').hidden=!lessonMode;
+ $('mission').hidden=!lessonMode||capstoneMode;
+ $('capstone').hidden=!capstoneMode;
+ $('learning-path').hidden=!lessonMode;
  for(const id of ['conversation','rooms','feedback'])$(id).hidden=lessonMode;
  labels.forEach(label=>{label.hidden=lessonMode});
- if(lessonMode){selected='kubo';$('heading').textContent=text('เข้ากะกับ Kubo','On shift with Kubo');$('instruction').textContent=text('แขกแต่ละคนต้องการอะไร แล้วห้องไหนตอบโจทย์?','Different guests. Different needs. Let’s find their rooms.');$('reset').textContent=text('เริ่มกิจกรรมนี้ใหม่','Restart this activity');mission.render()}
- lessonScene?.sync(lessonState,lang,lessonMode);
+ if(lessonMode&&!capstoneMode){selected='kubo';$('heading').textContent=text('เข้ากะกับ Kubo','On shift with Kubo');$('instruction').textContent=text('แขกแต่ละคนต้องการอะไร แล้วห้องไหนตอบโจทย์?','Different guests. Different needs. Let’s find their rooms.');$('reset').textContent=text('เริ่มกิจกรรมนี้ใหม่','Restart this activity');mission.render()}
+ if(capstoneMode){$('heading').textContent=text('กะถัดไปของคุณ','Your next shift');$('instruction').textContent=text('ข้อมูลเปลี่ยนแล้ว ตรวจหลักฐานก่อนตัดสินใจ','The facts have changed. Check the evidence before deciding.');$('progress').hidden=true;capstone?.render();}
+ learningPath?.render();
+ lessonScene?.sync(lessonState,lang,lessonMode&&!capstoneMode);
  updateStatus();
 }
 let loadFailure=false,loadMs=0;
 function updateStatus(){ $('render-status').textContent=loadFailure?text('3D ไม่พร้อม แต่ยังทำกิจกรรมด้วยปุ่มได้','3D unavailable. The activity still works with buttons.'):ready?(lessonMode?text('Kubo นำทาง · คุณเลือกว่าจะไปต่อเมื่อไร','Kubo is your guide · You choose when to continue'):text('ล็อบบี้พร้อม · แตะตัวละครได้เลย','Lobby ready · Tap a character')):text('กำลังโหลดโมเดล 3D','Loading 3D models') }
 const actors=new Map(),labels=new Map();
 const animated=[];
-const mission=createCourse({host:$('mission'),getLanguage:()=>lang,onChange:state=>{lessonState=state;const {chapter,step,total}=state;if(lessonMode){$('progress').hidden=chapter==='WELCOME';$('progress').textContent=`${chapter} · ${step+1} / ${total}`}lessonScene?.sync(state,lang,lessonMode)},onReaction:reaction=>{const now=performance.now();const actor=animated.find(a=>a.userData.motion?.id==='kubo');if(actor)actor.userData[reaction]=now;actors.forEach(a=>a.userData[reaction]=now)},onPractice:()=>{lessonMode=false;renderUI()}});
-$('mission-mode').onclick=()=>{lessonMode=true;renderUI()};$('practice-mode').onclick=()=>{lessonMode=false;renderUI()};
-$('language').onclick=()=>{lang=lang==='th'?'en':'th';feedback=null;renderUI()};
-$('reset').onclick=()=>{if(lessonMode)mission.reset();else{assigned.clear();selected=null;feedback=null}animated.forEach(a=>{a.userData.celebrate=-1e6;a.userData.greet=-1e6;a.userData.mistake=-1e6});renderUI()};
+const mission=createCourse({host:$('mission'),getLanguage:()=>lang,onStorageStatus:()=>learningPath?.refreshStorage(),onChallenge:()=>showChallenge(),onChange:state=>{lessonState=state;const {chapter,step,total}=state;if(lessonMode){$('progress').hidden=chapter==='WELCOME';$('progress').textContent=`${chapter} · ${step+1} / ${total}`}lessonScene?.sync(state,lang,lessonMode)},onReaction:reaction=>{const now=performance.now();const actor=animated.find(a=>a.userData.motion?.id==='kubo');if(actor)actor.userData[reaction]=now;actors.forEach(a=>a.userData[reaction]=now)},onPractice:()=>{lessonMode=false;capstoneMode=false;renderUI()}});
+function showCourse(){lessonMode=true;capstoneMode=false;renderUI();$(mission.getState().chapter===1?'mission-title':'course-title')?.focus({preventScroll:true});$('mission').scrollIntoView({block:'start',behavior:'instant'})}
+function showChallenge(){lessonMode=true;capstoneMode=true;renderUI();$('capstone').querySelector('h2')?.focus({preventScroll:true});$('capstone').scrollIntoView({block:'start',behavior:'instant'})}
+capstone=createCapstone({host:$('capstone'),getLanguage:()=>lang,onBack:showCourse,initialState:loadChallenge(),onSave:saveChallenge});
+learningPath=createLearningPath({host:$('learning-path'),getLanguage:()=>lang,course:mission,hasStorageError:()=>challengeStorageFailed,openChallenge:showChallenge,clearAll:()=>{mission.clearSavedProgress();capstone.reset();try{localStorage.removeItem(challengeKey)}catch{}showCourse()}});
+$('learning-path').addEventListener('resume-course',showCourse);
+$('mission-mode').onclick=showCourse;$('practice-mode').onclick=()=>{lessonMode=false;capstoneMode=false;renderUI()};
+$('language').onclick=()=>{lang=lang==='th'?'en':'th';try{localStorage.setItem('kubo-language',lang)}catch{}feedback=null;renderUI()};
+$('reset').onclick=()=>{if(capstoneMode)capstone.reset();else if(lessonMode)mission.reset();else{assigned.clear();selected=null;feedback=null}animated.forEach(a=>{a.userData.celebrate=-1e6;a.userData.greet=-1e6;a.userData.mistake=-1e6});renderUI()};
 renderUI();
 async function init3D(){
  const started=performance.now();const canvas=$('scene');

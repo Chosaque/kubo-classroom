@@ -7,12 +7,14 @@
   },
   "scripts": {
     "build:website": "node scripts/build-website.mjs",
+    "check:course": "node scripts/check-course-data.mjs",
     "live:bridge": "node bridge/server.mjs",
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "build:sites": "node scripts/build-sites.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

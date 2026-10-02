@@ -1,0 +1,105 @@
+.capstone {
+  color: #263b3d;
+  font-size: 16px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.capstone *, .capstone *::before, .capstone *::after { box-sizing: border-box; }
+.capstone h2, .capstone h3, .capstone p { margin: 0 0 14px; }
+.capstone h2 { font-size: clamp(25px, 3vw, 34px); line-height: 1.6; }
+.capstone h3 { font-size: 19px; line-height: 1.7; }
+.capstone .capstone-eyebrow { color: #576652; font-size: 14px; margin-bottom: 5px; }
+.capstone .capstone-intro { max-width: 70ch; }
+.capstone-progress {
+  display: inline-block;
+  padding: 7px 13px;
+  background: #dceadd;
+  color: #244a37;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.capstone-sources, .capstone-decisions, .capstone-reflection {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #c9c2ad;
+  min-width: 0;
+}
+.capstone .capstone-help { font-size: 14px; color: #565e50; line-height: 1.85; }
+.capstone-source-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.capstone-source {
+  background: #fffdf6;
+  border: 1px solid #c6bea9;
+  border-radius: 10px;
+  padding: 0 15px;
+  min-width: 0;
+}
+.capstone-source summary { padding: 13px 0; min-height: 48px; cursor: pointer; }
+.capstone-source summary strong { font-weight: 600; }
+.capstone-source-state { display: block; margin-left: 18px; color: #426653; font-size: 13px; }
+.capstone .capstone-source-by { color: #625c4d; font-size: 13px; }
+.capstone-source-text { white-space: pre-line; }
+.capstone-fieldset { padding: 0; margin: 0 0 16px; border: 0; min-width: 0; }
+.capstone-question-title { font-size: 18px; line-height: 1.85; font-weight: 600; margin-bottom: 12px; max-width: 100%; }
+.capstone-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  border: 1px solid #c3baa5;
+  border-radius: 9px;
+  background: #fffdf6;
+  padding: 12px;
+  margin-top: 10px;
+  cursor: pointer;
+  min-height: 48px;
+}
+.capstone-option:has(input:checked) { background: #dfede3; border-color: #35715b; box-shadow: inset 0 0 0 1px #35715b; }
+.capstone-option input, .capstone-self-review input { flex: 0 0 auto; width: 20px; height: 20px; margin: 5px 0 0; accent-color: #245851; }
+.capstone-option span, .capstone-self-review span { min-width: 0; }
+.capstone-button {
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid #8eaa99;
+  border-radius: 8px;
+  background: #fffdf6;
+  color: #284f49;
+  font: inherit;
+  line-height: 1.7;
+  white-space: normal;
+}
+.capstone-primary { color: #fff; background: #24534f; border-color: #24534f; font-weight: 600; }
+.capstone-button:disabled { color: #646658; background: #e2ded0; border-color: #d4cdbc; cursor: default; }
+.capstone-button:not(:disabled):hover { box-shadow: 0 0 0 2px #698d7e; }
+.capstone :is(button, input, textarea, summary):focus-visible { outline: 3px solid #2874a1; outline-offset: 3px; }
+.capstone :is(.capstone-feedback, .capstone-question-title, .capstone-reflection-title):focus { outline: 2px solid #2874a1; outline-offset: 4px; }
+.capstone .capstone-feedback { padding: 13px 15px; border-radius: 8px; margin-top: 16px; }
+.capstone-feedback.is-correct { color: #244a37; background: #d9eadb; border-left: 4px solid #467350; }
+.capstone-feedback.is-retry { color: #624416; background: #f5e5c3; border-left: 4px solid #a8792c; }
+.capstone-question-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.capstone-draft-label, .capstone-receipt-label { display: block; font-weight: 600; }
+.capstone textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 8px;
+  border: 1px solid #8eaa99;
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+  line-height: 1.85;
+  color: #263b3d;
+  background: #fffdf6;
+  resize: vertical;
+}
+.capstone .capstone-count { text-align: right; font-size: 13px; color: #5b6458; }
+.capstone-self-review { display: flex; gap: 11px; align-items: flex-start; margin: 16px 0; min-height: 44px; }
+.capstone-result { margin-top: 24px; padding: 18px; background: #e1ecdf; border: 1px solid #a7bca5; border-radius: 10px; }
+.capstone-result .capstone-button { margin-top: 14px; }
+.capstone-receipt { font-size: 14px !important; font-weight: 400; }
+.capstone-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid #c9c2ad; }
+@media (max-width: 480px) {
+  .capstone-option { padding: 11px; gap: 9px; }
+  .capstone-source { padding: 0 12px; }
+  .capstone-result { padding: 14px; }
+  .capstone-question-nav .capstone-button { flex: 1 1 130px; }
+}

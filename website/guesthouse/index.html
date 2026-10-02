@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="th">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cosmic Guesthouse · Kubo’s Classroom</title><meta name="description" content="Help Kubo choose the right context for Luma’s room request."><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./mission.css"><script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cosmic Guesthouse · Kubo’s Classroom</title><meta name="description" content="Help Kubo choose the right context for Luma’s room request."><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./mission.css"><script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script><link rel="stylesheet" href="./learning-path.css"><link rel="stylesheet" href="./capstone.css"></head>
 <body>
 <link rel="stylesheet" href="./course.css">
 <header><a href="/" id="back">← ห้องเรียน</a><span class="brand">KUBO’S <b>COSMIC GUESTHOUSE</b></span><button id="language" aria-label="Switch to English">EN</button></header>
@@ -13,7 +13,7 @@
   <div class="scene-footer"><span id="render-status" role="status">กำลังโหลดโมเดล 3D</span><button id="reset">เริ่มใหม่</button></div>
  </section>
  <aside class="desk">
-  <div id="mission"></div>
+  <section id="learning-path" aria-label="Learning path"></section><div id="mission"></div><section id="capstone" hidden></section>
   <div id="conversation" aria-live="polite"></div>
   <div id="rooms"></div>
   <div id="feedback" role="status" aria-live="polite"></div>

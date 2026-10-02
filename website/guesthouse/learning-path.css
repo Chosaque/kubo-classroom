@@ -1,0 +1,24 @@
+
+#learning-path{border-bottom:1px solid #cfc5b1;padding-bottom:20px;margin-bottom:24px}
+#learning-path h2{font-size:24px;line-height:1.65;margin:4px 0 8px;letter-spacing:normal}
+#learning-path p{margin:8px 0;line-height:1.75}
+.path-kicker{font-size:13px;font-weight:600;color:#6b5533}
+.path-steps{display:flex;flex-wrap:wrap;gap:8px 24px;margin:14px 0 18px;padding-left:22px;font-size:14px;color:#3d5d57}
+.path-actions{display:flex;gap:10px;flex-wrap:wrap}.path-actions button{flex:1;min-width:145px;text-align:center}
+.path-storage{font-size:13px;color:#5c665e;margin-top:14px}.path-storage summary{min-height:36px;display:list-item;padding-top:5px}
+.path-clear{color:#6c4932;border:1px solid #b9ad95;background:transparent;border-radius:7px;min-height:44px;padding:7px 12px}
+body[data-mode=capstone] main{grid-template-columns:minmax(0,.8fr) minmax(440px,1.2fr);align-items:start}
+body[data-mode=capstone] #guest-list{display:none}
+body[data-mode=capstone] .lobby{position:sticky;top:22px}
+body[data-mode=capstone] #stage{height:360px}
+#capstone:not([hidden])+#conversation{display:none}
+.mode-switch{flex-wrap:wrap}
+@media(max-width:1000px){body[data-mode=mission] main,body[data-mode=capstone] main{grid-template-columns:minmax(0,.8fr) minmax(360px,1fr)}}
+@media(max-width:800px){
+ body[data-mode=mission] main,body[data-mode=capstone] main{display:flex;flex-direction:column}
+ body[data-mode=mission] .desk,body[data-mode=capstone] .desk{order:-1;width:100%;min-width:0}
+ body[data-mode=mission] .lobby,body[data-mode=capstone] .lobby{position:static;width:100%}
+ body[data-mode=mission] #stage,body[data-mode=capstone] #stage{height:280px}
+ #learning-path h2{font-size:23px}
+}
+@media(max-width:400px){.path-actions{flex-direction:column}.path-actions button{width:100%;min-width:0}header{gap:8px}header a{font-size:12px}.brand{font-size:10px}.mode-switch{padding:0 16px}.mode-switch button{padding:8px 12px;font-size:14px}}

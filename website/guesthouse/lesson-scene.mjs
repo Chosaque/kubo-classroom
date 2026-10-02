@@ -35,15 +35,17 @@ export function createLessonScene({scene,camera,actors,kubo,stage}) {
  const nodes=stations.map((_,i)=>{const node=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.025,24),new THREE.MeshStandardMaterial({color:gold,emissive:gold,emissiveIntensity:.08}));node.position.set(-3.6+i*1.05,.018,3.8);group.add(node);return node;});
  const home=new Map([...actors].map(([id,a])=>[id,a.position.clone()]));
  const kuboHome=kubo.position.clone(),cameraHome=camera.position.clone();
- let state={chapter:'WELCOME',step:0,complete:false},cue=sceneCue(state),lang='th',enabled=true,start=0,key='',focus=new THREE.Vector3(0,2,0);
+ let state={chapter:'WELCOME',step:0,complete:false},cue=sceneCue(state),lang='th',enabled=true,start=0,key='';const focus=new THREE.Vector3(0,2,0);
  let wideView=false,shotKey='';
  const cameraAim=focus.clone(),cameraOffset=cameraHome.clone().sub(focus);
  resetView.onclick=()=>{wideView=true;};
- function trigger(){start=performance.now();kubo.userData.lessonAction=enabled?cue.action:null;kubo.userData.lessonActionAt=start;const actor=actors.get(cue.guest);if(actor)actor.userData.greet=start;}
- replay.onclick=()=>{wideView=false;trigger();};
+ function trigger(){start=performance.now();kubo.userData.lessonAction=enabled?cue.action:null;kubo.userData.lessonActionAt=Math.max(start,(kubo.userData.lessonActionAt??-1)+.001);const actor=actors.get(cue.guest);if(enabled&&actor)actor.userData.greet=start;}
+ replay.onclick=()=>{if(enabled){wideView=false;trigger();}};
  function sync(next,language,active){
   state=next;lang=language;enabled=active;cue=sceneCue(state);
-  const nextKey=`${state.chapter}:${state.step}:${Boolean(state.complete)}:${active}`;
+  // Passing a check changes the visual feedback, not the lesson gesture.
+  // Explicit Replay and a new lesson position are the only cue restarts.
+  const nextKey=`${state.chapter}:${state.step}:${active}`;
   const nextShot=`${state.chapter}:${state.step}:${active}`;
   if(nextShot!==shotKey){shotKey=nextShot;wideView=false;}
   caption.textContent=cue.label[lang==='th'?0:1];caption.hidden=!active;replay.hidden=!active;group.visible=active;
@@ -52,17 +54,22 @@ export function createLessonScene({scene,camera,actors,kubo,stage}) {
   if(nextKey!==key){key=nextKey;trigger();}
  }
  function update(now,dt,reduced){
-  const blend=reduced?1:1-Math.exp(-dt*3.4),age=(now-start)/1000;
+  const elapsed=Number.isFinite(dt)?Math.max(0,Math.min(dt,.05)):0;
+  const blend=reduced?1:1-Math.exp(-elapsed*3.4),age=Math.max(0,(now-start)/1000);
   const active=actors.get(cue.guest);
   actors.forEach((actor,id)=>{const target=home.get(id).clone();if(enabled&&id===cue.guest)target.z+=.65;actor.position.x=THREE.MathUtils.lerp(actor.position.x,target.x,blend);actor.position.z=THREE.MathUtils.lerp(actor.position.z,target.z,blend);});
   const target=kuboHome.clone();
   if(enabled&&cue.station>=0){target.set(nodes[cue.station].position.x,0,3.6);}
   else if(enabled){target.x+=.3;target.z-=.3;}
   const distance=Math.hypot(kubo.position.x-target.x,kubo.position.z-target.z);
-  kubo.userData.lessonWalking=enabled&&!reduced&&distance>.08;
-  kubo.position.lerp(target,blend);
-  const looking=kubo.userData.lessonWalking?target:camera.position;
-  kubo.userData.lessonLook=enabled?{x:looking.x,z:looking.z}:null;
+  // Fixed travel speed matches a fixed-rate Walk clip and avoids the previous
+  // fast slide followed by a long exponential crawl. Return trips also walk.
+  const travel=reduced?distance:Math.min(distance,elapsed*1.5);
+  const dx=distance>0?(target.x-kubo.position.x)/distance:0,dz=distance>0?(target.z-kubo.position.z)/distance:0;
+  kubo.position.x+=dx*travel;kubo.position.z+=dz*travel;
+  kubo.userData.lessonWalking=!reduced&&travel>1e-6;
+  // Look ahead even on the final travel frame, when target == position.
+  kubo.userData.lessonLook=kubo.userData.lessonWalking?{x:kubo.position.x+dx,z:kubo.position.z+dz}:enabled?{x:camera.position.x,z:camera.position.z}:null;
   // Translate both camera and aim to preserve the comfortable viewing angle.
   // Orthographic cameras need zoom, not a dolly, to make a subject larger.
   const aim=focus.clone();let zoom=1;
@@ -73,7 +80,7 @@ export function createLessonScene({scene,camera,actors,kubo,stage}) {
     aim.set(-1.35,2.2,1.8);zoom=1.45;
    }else{aim.set(kubo.position.x,1.45,kubo.position.z);zoom=1.8;}
   }
-  const cameraBlend=reduced?1:1-Math.exp(-Math.min(dt,.05)*2.2);
+  const cameraBlend=reduced?1:1-Math.exp(-elapsed*2.2);
   cameraAim.lerp(aim,cameraBlend);
   camera.position.copy(cameraAim).add(cameraOffset);camera.lookAt(cameraAim);
   camera.zoom=THREE.MathUtils.lerp(camera.zoom,zoom,cameraBlend);camera.updateProjectionMatrix();

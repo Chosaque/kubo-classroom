@@ -1,4 +1,5 @@
 import {createAgentTeam} from './agent-team.mjs';
+import {repairClapClip} from '../website/guesthouse/original-kubo.mjs';
 import {translate} from './thai.mjs';
 import * as T from 'three';
 import {ROOM_PALETTES,roomColorRole} from './room-palettes.mjs';
@@ -91,7 +92,7 @@ export async function createWorkspace(element,onState,onEvent,onManual=()=>{},op
   cube.scene.traverse(o=>{if(o.morphTargetDictionary&&o.userData.facialMorphs)faces.push(o);});
   cube.scene.traverse(o=>{if(o.userData.outfit){garments.push(o);o.visible=false;}else if(o.isMesh&&o.material?.color){const name=o.name.replaceAll('_',' ').toLowerCase();if(/trouser|necktie|tie knot/.test(name)){o.material=o.material.clone();fabric.push({object:o,name,color:o.material.color.clone()});}}});setOutfit(outfit);
   mixer=new T.AnimationMixer(cube.scene);
-  for(const clip of cube.animations)actions[clip.name]=mixer.clipAction(clip);
+  for(const clip of cube.animations)actions[clip.name]=mixer.clipAction(clip.name==='Celebrate'?repairClapClip(clip):clip);
   for(const name of ['Idle','Run','Turn','Sit','Stand','Typing','ReadScreen','PressButton','ReadFile','CheckData','SortDocuments','UpdateBoard','InspectSafe','WaitApproval',...PREVIEWS])if(!actions[name])throw new Error('Missing character animation: '+name);
   if(!options.lessonMode)window.agenticDashboard=api;
   if(!options.lessonMode&&document.modelContext?.registerTool){
