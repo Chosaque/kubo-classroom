@@ -4,9 +4,13 @@ A Thai/English learning website for explaining AI agents and coordinated sub-age
 
 ## Live demo
 
-[Open Kubo's Classroom](https://kubo-classroom.vercel.app/)
+[Open Kubo's Classroom](https://kubo-classroom.atit-homsettee.chatgpt.site/)
 
-The published classroom includes the Cosmic Guesthouse and [Live Workshop](https://kubo-classroom.vercel.app/live/), with the original eight-station room.
+The published classroom includes the Cosmic Guesthouse and [Live Workshop](https://kubo-classroom.atit-homsettee.chatgpt.site/live/), with the original eight-station room.
+
+## Learning experience
+
+Start at **Your first shift with Kubo**, continue the seven chapters, then try **Next shift**. The new final challenge checks four decisions against fictional records. Its optional writing is self-reviewed, not graded by AI. Course position, selected answers, and writing stay in this browser; **Progress and saved work** explains how to clear them on shared devices. Token-counter text is never saved. The classroom works without 3D, an AI account, or the optional local Live Workshop helper.
 
 ## Project direction
 
@@ -17,7 +21,7 @@ The published classroom includes the Cosmic Guesthouse and [Live Workshop](https
 
 ## Version status
 
-`website/` now contains the Cosmic Guesthouse publication source. `live/` contains the integrated workshop UI and uses the original room and animations from `app/`. `npm run build:website` produces the complete static Vercel site, preserving the Guesthouse at `/` and `/guesthouse/` and adding `/live/`. The older presentation source remains in `app/`.
+`website/` now contains the Cosmic Guesthouse publication source. `live/` contains the integrated workshop UI and uses the original room and animations from `app/`. `npm run build:website` produces the complete static site, preserving the Guesthouse at `/` and `/guesthouse/` and adding `/live/`. The older presentation source remains in `app/`.
 
 ## Run locally
 
@@ -76,6 +80,8 @@ Do not commit passwords, API keys, `.env` secrets, private notes, or machine-spe
 
 ## Deployment
 
+The personal Sites deployment uses `.openai/hosting.json` and `npm run build:sites`. Its static host does not apply `_redirects`, so the Windows download and checksum links point directly to the matching `classroom-2026-10-02.2` GitHub release. Build and publish both assets from the same source commit before deploying.
+
 A GitHub commit is not proof that the live website has updated. Confirm the deployment destination and workflow with the project owner before publishing, and verify the live result afterward.
 
 ## Live Workshop
@@ -84,9 +90,9 @@ Open the classroom and select **Live Workshop · 8 stations**, or open `/live/` 
 
 ### Windows: no commands needed
 
-Open [Live Workshop](https://kubo-classroom.vercel.app/live/), choose **Connect my Windows PC**, download the Windows ZIP, choose **Extract All**, and double-click **Start Kubo**. The complete classroom opens with the connection already running, in one browser tab. Next time, open **Start Kubo** again. The package includes a checksum-verified Node.js runtime; no admin access, Node installation, firewall changes, or startup service is required. Windows x64 is supported; ARM is not tested. Windows may display an unsigned-download warning; do not disable security protections.
+Open [Live Workshop](https://kubo-classroom.atit-homsettee.chatgpt.site/live/), choose **Connect my Windows PC**, download the Windows ZIP, choose **Extract All**, and double-click **Start Kubo**. The complete classroom opens with the connection already running, in one browser tab. Next time, open **Start Kubo** again. The package includes a checksum-verified Node.js runtime; no admin access, Node installation, firewall changes, or startup service is required. Windows x64 is supported; ARM is not tested. Windows may display an unsigned-download warning; do not disable security protections.
 
-The connected classroom runs at `http://127.0.0.1:4318/`, including `/guesthouse/` and `/live/`. This is a local copy of the website, not a connection to a remote person's PC. The public Vercel classroom remains available. The helper runs until Windows sign-out/restart. To update, close the old helper and extract a fresh download into a new folder.
+The connected classroom runs at `http://127.0.0.1:4318/`, including `/guesthouse/` and `/live/`. This is a local copy of the website, not a connection to a remote person's PC. The public classroom is also available without the local helper. The helper runs until Windows sign-out/restart. To update, close the old helper and extract a fresh download into a new folder.
 
 Sessions can be searched by title, assistant or session ID. They are ordered by latest activity (newest first), with local dates/times shown. Search and live updates preserve the session being watched.
 

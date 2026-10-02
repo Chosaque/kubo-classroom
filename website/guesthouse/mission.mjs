@@ -1,4 +1,5 @@
 import {records,createState,answer,canContinue,next,toggleCard,draft,verify} from './mission-state.mjs';
+import {restoreMissionProgress} from './progress-storage.mjs';
 
 const titles=[['Kubo เห็นอะไรตอนนี้?','What can Kubo see right now?'],['คำขอชุดไหนใช้กับคืนนี้?','Which request applies tonight?'],['จัดโต๊ะให้ Kubo','Set up Kubo’s desk']];
 const leads=[['Luma อยากพักแล้ว ช่วย Kubo เลือกข้อมูลที่จะใช้หาห้องคืนนี้','Luma needs some rest. Help Kubo find the information for tonight’s room.'],['มีบันทึกเก่าและประกาศอาหารเพิ่มบนโต๊ะ ลองตัดสินใจก่อนดูตัวอย่าง','An old note and a café notice have joined the desk. Make your call before the reveal.'],['แตะเพื่อนำข้อมูลที่ไม่ใช้คืนนี้ออก แล้วให้ Kubo แนะนำห้อง','Set aside the notes tonight’s task doesn’t need. Then ask Kubo for a recommendation.']];
@@ -17,8 +18,8 @@ const course=[
  ['QI-07','ห้องทำงาน','The workroom','ประกอบบริบท กฎ Skills เครื่องมือ ผู้ช่วย และการอนุมัติ','Combine context, rules, skills, tools, a helper, and permission']
 ];
 
-export function createMission({host,getLanguage,onChange,onReaction,onPractice}){
- let state=createState();
+export function createMission({host,getLanguage,onChange,onReaction,onPractice,initialProgress=null,onProgress=()=>{}}){
+ let state=restoreMissionProgress(initialProgress);
  const local=pair=>pair[getLanguage()==='th'?0:1];
  const t=(th,en)=>local([th,en]);
  function button(label,action,attrs=''){return `<button type="button" data-action="${action}" ${attrs}>${label}</button>`}
@@ -70,9 +71,9 @@ export function createMission({host,getLanguage,onChange,onReaction,onPractice})
   if(actionName==='verify'){verify(state,value);onReaction(state.verified?'celebrate':'mistake');focusTitle=state.verified}
   if(actionName==='reset'){state=createState();focusTitle=true}
   if(actionName==='practice'){onPractice();return}
-  render();
+  onProgress();render();
   if(focusTitle)host.querySelector('#mission-title').focus({preventScroll:true});
   else{const replacement=[...host.querySelectorAll('[data-action]')].find(b=>b.dataset.action===control.dataset.action);replacement?.focus({preventScroll:true})}
  });
- return {render,reset(){state=createState();render()},getState(){return state}};
+ return {render,reset(){state=createState();onProgress();render()},getState(){return state}};
 }
